@@ -6,7 +6,7 @@ pool:
 
 variables:
   - name: azureSubscription
-    value: AzureConnection
+    value: pipeline-connection
   - name: ResourceGroupName
     value: myRG
   - name: appName
