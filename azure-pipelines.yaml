@@ -1,0 +1,67 @@
+trigger:
+  - main
+
+pool:
+  vmImage: "windows-latest"
+
+variables:
+  - name: azureSubscription
+    value: AzureConnection
+  - name: ResourceGroupName
+    value: myRG
+  - name: appName
+    value: myWebApp-test-JW
+
+stages:
+  - stage: Build
+    displayName: "Build stage"
+    jobs:
+      - job: Build
+        steps:
+          - checkout: self
+          - task: DotNetCoreCLI@2
+            inputs:
+              command: "build"
+              projects: "**/*.csproj"
+          - task: PublishBuildArtifacts@1
+            inputs:
+              PathtoPublish: "bin"
+              ArtifactName: "drop"
+              publishLocation: "container"
+
+  - stage: DeployToStaging
+    displayName: "Deploy to Staging"
+    dependsOn: Build
+    condition: succeeded()
+    jobs:
+      - deployment: DeployWeb
+        displayName: "Deploy to Staging Slot"
+        environment: "staging"
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                - task: AzureRmWebAppDeployment@4
+                  inputs:
+                    azureSubscription: "$(azureSubscription)"
+                    appType: "webApp"
+                    WebAppName: "$(appName)"
+                    deployToSlotOrASE: true
+                    ResourceGroupName: "$(ResourceGroupName)"
+                    SlotName: "staging"
+                    packageForLinux: "$(Pipeline.Workspace)/drop/**/*.zip"
+
+  - stage: SwapSlots
+    displayName: "Swap Slots"
+    dependsOn: DeployToStaging
+    condition: succeeded()
+    jobs:
+      - job: Swap
+        steps:
+          - task: AzureAppServiceManage@0
+            inputs:
+              azureSubscription: "$(azureSubscription)"
+              Action: "Swap Slots"
+              WebAppName: "$(appName)"
+              ResourceGroupName: "$(ResourceGroupName)"
+              SourceSlot: "staging"
