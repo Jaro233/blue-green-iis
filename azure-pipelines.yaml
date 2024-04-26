@@ -9,7 +9,7 @@ variables:
   - name: ResourceGroupName
     value: myRG
   - name: appName
-    value: myWebApp-test-JW
+    value: myWebApp-test-JW-123
   - name: appFolder
     value: MyAspNetApp
 
