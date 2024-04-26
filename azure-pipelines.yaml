@@ -10,6 +10,8 @@ variables:
     value: myRG
   - name: appName
     value: myWebApp-test-JW
+  - name: appFolder
+    value: MyAspNetApp
 
 stages:
   - stage: Build
@@ -24,7 +26,7 @@ stages:
               projects: "**/*.csproj"
           - task: PublishBuildArtifacts@1
             inputs:
-              PathtoPublish: "bin"
+              PathtoPublish: "$(appFolder)/bin"
               ArtifactName: "drop"
               publishLocation: "container"
 
