@@ -1,4 +1,4 @@
-param appName string = 'myWebApp-test-JW'
+param appName string = 'myWebApp-test-JW-123'
 param location string = 'westeurope'
 param skuName string = 'S1' // Premium tier, można dostosować do potrzeb
 
